@@ -47,6 +47,7 @@ struct clusterip_config {
 	__be32 clusterip;			/* the IP address */
 	u_int8_t clustermac[ETH_ALEN];		/* the MAC address */
 	struct net_device *dev;			/* device */
+	struct net *net;
 	u_int16_t num_total_nodes;		/* total number of nodes */
 	unsigned long local_nodes;		/* node number array */
 
@@ -99,8 +100,7 @@ clusterip_config_put(struct clusterip_config *c)
 static inline void
 clusterip_config_entry_put(struct clusterip_config *c)
 {
-	struct net *net = dev_net(c->dev);
-	struct clusterip_net *cn = net_generic(net, clusterip_net_id);
+	struct clusterip_net *cn = net_generic(c->net, clusterip_net_id);
 
 	local_bh_disable();
 	if (atomic_dec_and_lock(&c->entries, &cn->lock)) {
@@ -165,17 +165,18 @@ clusterip_config_init_nodelist(struct clusterip_config *c,
 }
 
 static struct clusterip_config *
-clusterip_config_init(const struct ipt_clusterip_tgt_info *i, __be32 ip,
-			struct net_device *dev)
+clusterip_config_init(struct net *net, const struct ipt_clusterip_tgt_info *i,
+			__be32 ip, struct net_device *dev)
 {
 	struct clusterip_config *c;
-	struct clusterip_net *cn = net_generic(dev_net(dev), clusterip_net_id);
+	struct clusterip_net *cn = net_generic(net, clusterip_net_id);
 
 	c = kzalloc(sizeof(*c), GFP_ATOMIC);
 	if (!c)
 		return NULL;
 
 	c->dev = dev;
+	c->net = net;
 	c->clusterip = ip;
 	memcpy(&c->clustermac, &i->clustermac, ETH_ALEN);
 	c->num_total_nodes = i->num_total_nodes;
@@ -408,7 +409,7 @@ static int clusterip_tg_check(const struct xt_tgchk_param *par)
 				return -ENOENT;
 			}
 
-			config = clusterip_config_init(cipinfo,
+			config = clusterip_config_init(par->net, cipinfo,
 							e->ip.dst.s_addr, dev);
 			if (!config) {
 				dev_put(dev);
