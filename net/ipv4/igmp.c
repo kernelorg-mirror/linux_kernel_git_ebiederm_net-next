@@ -390,14 +390,14 @@ static struct sk_buff *igmpv3_newpack(struct net_device *dev, unsigned int mtu)
 	return skb;
 }
 
-static int igmpv3_sendpack(struct sk_buff *skb)
+static int igmpv3_sendpack(struct net *net, struct sk_buff *skb)
 {
 	struct igmphdr *pig = igmp_hdr(skb);
 	const int igmplen = skb_tail_pointer(skb) - skb_transport_header(skb);
 
 	pig->csum = ip_compute_csum(igmp_hdr(skb), igmplen);
 
-	return ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
+	return ip_local_out(net, skb->sk, skb);
 }
 
 static int grec_size(struct ip_mc_list *pmc, int type, int gdel, int sdel)
@@ -462,7 +462,7 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
 		if (pih && pih->ngrec &&
 		    AVAILABLE(skb) < grec_size(pmc, type, gdeleted, sdeleted)) {
 			if (skb)
-				igmpv3_sendpack(skb);
+				igmpv3_sendpack(dev_net(dev), skb);
 			skb = igmpv3_newpack(dev, dev->mtu);
 		}
 	}
@@ -489,7 +489,7 @@ static struct sk_buff *add_grec(struct sk_buff *skb, struct ip_mc_list *pmc,
 			if (pgr)
 				pgr->grec_nsrcs = htons(scount);
 			if (skb)
-				igmpv3_sendpack(skb);
+				igmpv3_sendpack(dev_net(dev), skb);
 			skb = igmpv3_newpack(dev, dev->mtu);
 			first = 1;
 			scount = 0;
@@ -526,7 +526,7 @@ empty_source:
 		if (pmc->crcount || isquery) {
 			/* make sure we have room for group header */
 			if (skb && AVAILABLE(skb) < sizeof(struct igmpv3_grec)) {
-				igmpv3_sendpack(skb);
+				igmpv3_sendpack(dev_net(dev), skb);
 				skb = NULL; /* add_grhead will get a new one */
 			}
 			skb = add_grhead(skb, pmc, type, &pgr);
@@ -573,7 +573,7 @@ static int igmpv3_send_report(struct in_device *in_dev, struct ip_mc_list *pmc)
 	}
 	if (!skb)
 		return 0;
-	return igmpv3_sendpack(skb);
+	return igmpv3_sendpack(dev_net(in_dev->dev), skb);
 }
 
 /*
@@ -667,7 +667,7 @@ static void igmpv3_send_cr(struct in_device *in_dev)
 
 	if (!skb)
 		return;
-	(void) igmpv3_sendpack(skb);
+	(void) igmpv3_sendpack(dev_net(in_dev->dev), skb);
 }
 
 static int igmp_send_report(struct in_device *in_dev, struct ip_mc_list *pmc,

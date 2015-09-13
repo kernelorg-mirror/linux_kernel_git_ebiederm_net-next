@@ -53,6 +53,7 @@ int iptunnel_xmit(struct sock *sk, struct rtable *rt, struct sk_buff *skb,
 {
 	int pkt_len = skb->len;
 	struct iphdr *iph;
+	struct net *net;
 	int err;
 
 	skb_scrub_packet(skb, xnet);
@@ -75,10 +76,11 @@ int iptunnel_xmit(struct sock *sk, struct rtable *rt, struct sk_buff *skb,
 	iph->daddr	=	dst;
 	iph->saddr	=	src;
 	iph->ttl	=	ttl;
-	__ip_select_ident(dev_net(rt->dst.dev), iph,
+	net = dev_net(rt->dst.dev);
+	__ip_select_ident(net, iph,
 			  skb_shinfo(skb)->gso_segs ?: 1);
 
-	err = ip_local_out(dev_net(rt->dst.dev), sk, skb);
+	err = ip_local_out(net, sk, skb);
 	if (unlikely(net_xmit_eval(err)))
 		pkt_len = 0;
 	return pkt_len;
