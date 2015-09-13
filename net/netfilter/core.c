@@ -86,8 +86,7 @@ struct nf_hook_entry {
 int nf_register_net_hook(struct net *net, const struct nf_hook_ops *reg)
 {
 	struct list_head *hook_list;
-	struct nf_hook_entry *entry;
-	struct nf_hook_ops *elem;
+	struct nf_hook_entry *entry, *elem;
 
 	entry = kmalloc(sizeof(*entry), GFP_KERNEL);
 	if (!entry)
@@ -103,11 +102,11 @@ int nf_register_net_hook(struct net *net, const struct nf_hook_ops *reg)
 	}
 
 	mutex_lock(&nf_hook_mutex);
-	list_for_each_entry(elem, hook_list, list) {
-		if (reg->priority < elem->priority)
+	list_for_each_entry(elem, hook_list, ops.list) {
+		if (reg->priority < elem->ops.priority)
 			break;
 	}
-	list_add_rcu(&entry->ops.list, elem->list.prev);
+	list_add_rcu(&entry->ops.list, elem->ops.list.prev);
 	mutex_unlock(&nf_hook_mutex);
 #ifdef CONFIG_NETFILTER_INGRESS
 	if (reg->pf == NFPROTO_NETDEV && reg->hooknum == NF_NETDEV_INGRESS)
@@ -124,22 +123,20 @@ void nf_unregister_net_hook(struct net *net, const struct nf_hook_ops *reg)
 {
 	struct list_head *hook_list;
 	struct nf_hook_entry *entry;
-	struct nf_hook_ops *elem;
 
 	hook_list = nf_find_hook_list(net, reg);
 	if (!hook_list)
 		return;
 
 	mutex_lock(&nf_hook_mutex);
-	list_for_each_entry(elem, hook_list, list) {
-		entry = container_of(elem, struct nf_hook_entry, ops);
+	list_for_each_entry(entry, hook_list, ops.list) {
 		if (entry->orig_ops == reg) {
 			list_del_rcu(&entry->ops.list);
 			break;
 		}
 	}
 	mutex_unlock(&nf_hook_mutex);
-	if (&elem->list == hook_list) {
+	if (&entry->ops.list == hook_list) {
 		WARN(1, "nf_unregister_net_hook: hook not found!\n");
 		return;
 	}
