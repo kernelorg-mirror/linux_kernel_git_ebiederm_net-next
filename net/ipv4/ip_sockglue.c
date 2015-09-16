@@ -300,7 +300,6 @@ int ip_cmsg_send(struct net *net, struct msghdr *msg, struct ipcm_cookie *ipc,
    but receiver should be enough clever f.e. to forward mtrace requests,
    sent to multicast group to reach destination designated router.
  */
-struct ip_ra_chain __rcu *ip_ra_chain;
 static DEFINE_SPINLOCK(ip_ra_lock);
 
 
@@ -315,6 +314,7 @@ static void ip_ra_destroy_rcu(struct rcu_head *head)
 int ip_ra_control(struct sock *sk, unsigned char on,
 		  void (*destructor)(struct sock *))
 {
+	struct net *net = sock_net(sk);
 	struct ip_ra_chain *ra, *new_ra;
 	struct ip_ra_chain __rcu **rap;
 
@@ -324,7 +324,7 @@ int ip_ra_control(struct sock *sk, unsigned char on,
 	new_ra = on ? kmalloc(sizeof(*new_ra), GFP_KERNEL) : NULL;
 
 	spin_lock_bh(&ip_ra_lock);
-	for (rap = &ip_ra_chain;
+	for (rap = &net->ipv4.ip_ra_chain;
 	     (ra = rcu_dereference_protected(*rap,
 			lockdep_is_held(&ip_ra_lock))) != NULL;
 	     rap = &ra->next) {

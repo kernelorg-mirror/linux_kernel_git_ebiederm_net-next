@@ -16,6 +16,7 @@ struct fib_rules_ops;
 struct hlist_head;
 struct fib_table;
 struct sock;
+struct ip_ra_chain;
 struct local_ports {
 	seqlock_t	lock;
 	int		range[2];
@@ -108,5 +109,6 @@ struct netns_ipv4 {
 #endif
 #endif
 	atomic_t	rt_genid;
+	struct ip_ra_chain __rcu *ip_ra_chain;
 };
 #endif
