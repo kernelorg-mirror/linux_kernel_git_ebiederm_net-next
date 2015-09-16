@@ -27,4 +27,13 @@ static inline struct net *seq_file_net(struct seq_file *seq)
 #endif
 }
 
+static inline struct net *single_file_net(struct seq_file *seq)
+{
+#ifdef CONFIG_NET_NS
+	return (struct net *)seq->private;
+#else
+	return &init_net;
+#endif
+}
+
 #endif

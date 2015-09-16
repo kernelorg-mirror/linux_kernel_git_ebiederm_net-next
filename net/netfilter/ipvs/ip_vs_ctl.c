@@ -2086,7 +2086,7 @@ static const struct file_operations ip_vs_info_fops = {
 
 static int ip_vs_stats_show(struct seq_file *seq, void *v)
 {
-	struct net *net = seq_file_single_net(seq);
+	struct net *net = single_file_net(seq);
 	struct ip_vs_kstats show;
 
 /*               01234567 01234567 01234567 0123456701234567 0123456701234567 */
@@ -2131,7 +2131,7 @@ static const struct file_operations ip_vs_stats_fops = {
 
 static int ip_vs_stats_percpu_show(struct seq_file *seq, void *v)
 {
-	struct net *net = seq_file_single_net(seq);
+	struct net *net = single_file_net(seq);
 	struct ip_vs_stats *tot_stats = &net_ipvs(net)->tot_stats;
 	struct ip_vs_cpu_stats __percpu *cpustats = tot_stats->cpustats;
 	struct ip_vs_kstats kstats;
