@@ -50,7 +50,7 @@ static const struct snmp_mib xfrm_mib_list[] = {
 
 static int xfrm_statistics_seq_show(struct seq_file *seq, void *v)
 {
-	struct net *net = seq->private;
+	struct net *net = single_file_net(seq);
 	int i;
 	for (i = 0; xfrm_mib_list[i].name; i++)
 		seq_printf(seq, "%-24s\t%lu\n", xfrm_mib_list[i].name,

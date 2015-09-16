@@ -3345,7 +3345,7 @@ static const struct file_operations ipv6_route_proc_fops = {
 
 static int rt6_stats_seq_show(struct seq_file *seq, void *v)
 {
-	struct net *net = (struct net *)seq->private;
+	struct net *net = single_file_net(seq);
 	seq_printf(seq, "%04x %04x %04x %04x %04x %04x %04x\n",
 		   net->ipv6.rt6_stats->fib_nodes,
 		   net->ipv6.rt6_stats->fib_route_nodes,

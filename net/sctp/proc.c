@@ -73,7 +73,7 @@ static const struct snmp_mib sctp_snmp_list[] = {
 /* Display sctp snmp mib statistics(/proc/net/sctp/snmp). */
 static int sctp_snmp_seq_show(struct seq_file *seq, void *v)
 {
-	struct net *net = seq->private;
+	struct net *net = single_file_net(seq);
 	int i;
 
 	for (i = 0; sctp_snmp_list[i].name != NULL; i++)

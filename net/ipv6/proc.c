@@ -32,7 +32,7 @@
 
 static int sockstat6_seq_show(struct seq_file *seq, void *v)
 {
-	struct net *net = seq->private;
+	struct net *net = single_file_net(seq);
 	unsigned int frag_mem = ip6_frag_mem(net);
 
 	seq_printf(seq, "TCP6: inuse %d\n",
@@ -214,7 +214,7 @@ static void snmp6_seq_show_item64(struct seq_file *seq, void __percpu *mib,
 
 static int snmp6_seq_show(struct seq_file *seq, void *v)
 {
-	struct net *net = (struct net *)seq->private;
+	struct net *net = single_file_net(seq);
 
 	snmp6_seq_show_item64(seq, net->mib.ipv6_statistics,
 			    snmp6_ipstats_list, offsetof(struct ipstats_mib, syncp));

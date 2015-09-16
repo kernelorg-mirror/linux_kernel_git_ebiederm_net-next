@@ -51,7 +51,7 @@
  */
 static int sockstat_seq_show(struct seq_file *seq, void *v)
 {
-	struct net *net = seq->private;
+	struct net *net = single_file_net(seq);
 	unsigned int frag_mem;
 	int orphans, sockets;
 
@@ -381,7 +381,7 @@ static void icmp_put(struct seq_file *seq)
 static int snmp_seq_show(struct seq_file *seq, void *v)
 {
 	int i;
-	struct net *net = seq->private;
+	struct net *net = single_file_net(seq);
 
 	seq_puts(seq, "Ip: Forwarding DefaultTTL");
 
@@ -465,7 +465,7 @@ static const struct file_operations snmp_seq_fops = {
 static int netstat_seq_show(struct seq_file *seq, void *v)
 {
 	int i;
-	struct net *net = seq->private;
+	struct net *net = single_file_net(seq);
 
 	seq_puts(seq, "TcpExt:");
 	for (i = 0; snmp4_net_list[i].name != NULL; i++)
