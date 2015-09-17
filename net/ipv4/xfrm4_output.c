@@ -77,7 +77,7 @@ int xfrm4_output_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
 	IPCB(skb)->flags |= IPSKB_XFRM_TRANSFORMED;
 #endif
 
-	return xfrm_output(sk, skb);
+	return xfrm_output(net, sk, skb);
 }
 
 static int __xfrm4_output(struct net *net, struct sock *sk, struct sk_buff *skb)
