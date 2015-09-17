@@ -364,7 +364,7 @@ static int ipvlan_process_v4_outbound(struct sk_buff *skb)
 	}
 	skb_dst_drop(skb);
 	skb_dst_set(skb, &rt->dst);
-	err = ip_local_out(skb->sk, skb);
+	err = ip_local_out(dev_net(dev), skb->sk, skb);
 	if (unlikely(net_xmit_eval(err)))
 		dev->stats.tx_errors++;
 	else
@@ -401,7 +401,7 @@ static int ipvlan_process_v6_outbound(struct sk_buff *skb)
 	}
 	skb_dst_drop(skb);
 	skb_dst_set(skb, dst);
-	err = ip6_local_out(skb->sk, skb);
+	err = ip6_local_out(dev_net(dev), skb->sk, skb);
 	if (unlikely(net_xmit_eval(err)))
 		dev->stats.tx_errors++;
 	else
