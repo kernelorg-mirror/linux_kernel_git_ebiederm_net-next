@@ -120,7 +120,7 @@ int xfrm6_prepare_output(struct xfrm_state *x, struct sk_buff *skb)
 }
 EXPORT_SYMBOL(xfrm6_prepare_output);
 
-int xfrm6_output_finish(struct sock *sk, struct sk_buff *skb)
+int xfrm6_output_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
 	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
 
@@ -129,12 +129,6 @@ int xfrm6_output_finish(struct sock *sk, struct sk_buff *skb)
 #endif
 
 	return xfrm_output(sk, skb);
-}
-
-static int __xfrm6_output_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
-{
-	struct xfrm_state *x = skb_dst(skb)->xfrm;
-	return x->outer_mode->afinfo->output_finish(sk, skb);
 }
 
 static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
@@ -167,9 +161,9 @@ static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 	    ((skb->len > mtu && !skb_is_gso(skb)) ||
 		dst_allfrag(skb_dst(skb)))) {
 		return ip6_fragment(net, sk, skb,
-				    __xfrm6_output_finish);
+				    x->outer_mode->afinfo->output_finish);
 	}
-	return x->outer_mode->afinfo->output_finish(sk, skb);
+	return x->outer_mode->afinfo->output_finish(net, sk, skb);
 }
 
 int xfrm6_output(struct sock *sk, struct sk_buff *skb)
