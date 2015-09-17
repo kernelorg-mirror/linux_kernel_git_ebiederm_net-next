@@ -163,7 +163,7 @@ static int xfrm_output2(struct net *net, struct sock *sk, struct sk_buff *skb)
 	return xfrm_output_resume(skb, 1);
 }
 
-static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb)
+static int xfrm_output_gso(struct net *net, struct sk_buff *skb)
 {
 	struct sk_buff *segs;
 
@@ -179,7 +179,7 @@ static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb
 		int err;
 
 		segs->next = NULL;
-		err = xfrm_output2(net, sk, segs);
+		err = xfrm_output2(net, NULL, segs);
 
 		if (unlikely(err)) {
 			kfree_skb_list(nskb);
@@ -192,12 +192,13 @@ static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb
 	return 0;
 }
 
-int xfrm_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+int xfrm_output(struct sk_buff *skb)
 {
+	struct net *net = xs_net(skb_dst(skb)->xfrm);
 	int err;
 
 	if (skb_is_gso(skb))
-		return xfrm_output_gso(net, sk, skb);
+		return xfrm_output_gso(net, skb);
 
 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
 		err = skb_checksum_help(skb);
@@ -208,7 +209,7 @@ int xfrm_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 		}
 	}
 
-	return xfrm_output2(net, sk, skb);
+	return xfrm_output2(net, NULL, skb);
 }
 EXPORT_SYMBOL_GPL(xfrm_output);
 

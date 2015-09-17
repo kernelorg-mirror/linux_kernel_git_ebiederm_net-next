@@ -128,7 +128,7 @@ int xfrm6_output_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
 	IP6CB(skb)->flags |= IP6SKB_XFRM_TRANSFORMED;
 #endif
 
-	return xfrm_output(net, sk, skb);
+	return xfrm_output(skb);
 }
 
 static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
