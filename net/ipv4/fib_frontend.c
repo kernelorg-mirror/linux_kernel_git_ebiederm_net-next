@@ -310,7 +310,7 @@ __be32 fib_compute_spec_dst(struct sk_buff *skb)
 		scope = RT_SCOPE_LINK;
 	}
 
-	return inet_select_addr(dev, ip_hdr(skb)->saddr, scope);
+	return inet_select_addr(net, dev, ip_hdr(skb)->saddr, scope);
 }
 
 /* Given (packet source, input interface) and optional (dst, oif, tos):

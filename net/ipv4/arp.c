@@ -365,7 +365,7 @@ static void arp_solicit(struct neighbour *neigh, struct sk_buff *skb)
 	rcu_read_unlock();
 
 	if (!saddr)
-		saddr = inet_select_addr(dev, target, RT_SCOPE_LINK);
+		saddr = inet_select_addr(dev_net(dev), dev, target, RT_SCOPE_LINK);
 
 	probes -= NEIGH_VAR(neigh->parms, UCAST_PROBES);
 	if (probes < 0) {

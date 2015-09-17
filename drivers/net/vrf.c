@@ -196,16 +196,17 @@ static netdev_tx_t vrf_process_v4_outbound(struct sk_buff *skb,
 		.flowi4_flags = FLOWI_FLAG_ANYSRC | FLOWI_FLAG_VRFSRC,
 		.daddr = ip4h->daddr,
 	};
+	struct net *net = dev_net(vrf_dev);
 
 	if (vrf_send_v4_prep(skb, &fl4, vrf_dev))
 		goto err;
 
 	if (!ip4h->saddr) {
-		ip4h->saddr = inet_select_addr(skb_dst(skb)->dev, 0,
+		ip4h->saddr = inet_select_addr(net, skb_dst(skb)->dev, 0,
 					       RT_SCOPE_LINK);
 	}
 
-	ret = ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
+	ret = ip_local_out(net, skb->sk, skb);
 	if (unlikely(net_xmit_eval(ret)))
 		vrf_dev->stats.tx_errors++;
 	else

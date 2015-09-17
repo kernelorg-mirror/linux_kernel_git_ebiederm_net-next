@@ -1450,7 +1450,7 @@ static int bind_mcastif_addr(struct socket *sock, char *ifname)
 	if (!dev)
 		return -ENODEV;
 
-	addr = inet_select_addr(dev, 0, RT_SCOPE_UNIVERSE);
+	addr = inet_select_addr(net, dev, 0, RT_SCOPE_UNIVERSE);
 	if (!addr)
 		pr_err("You probably need to specify IP address on "
 		       "multicast interface.\n");

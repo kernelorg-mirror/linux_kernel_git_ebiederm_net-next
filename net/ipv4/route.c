@@ -1196,7 +1196,7 @@ void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
 		if (fib_lookup(dev_net(rt->dst.dev), &fl4, &res, 0) == 0)
 			src = FIB_RES_PREFSRC(dev_net(rt->dst.dev), res);
 		else
-			src = inet_select_addr(rt->dst.dev,
+			src = inet_select_addr(dev_net(rt->dst.dev), rt->dst.dev,
 					       rt_nexthop(rt, iph->daddr),
 					       RT_SCOPE_UNIVERSE);
 		rcu_read_unlock();
@@ -2114,16 +2114,16 @@ struct rtable *__ip_route_output_key(struct net *net, struct flowi4 *fl4)
 		    ipv4_is_lbcast(fl4->daddr) ||
 		    fl4->flowi4_proto == IPPROTO_IGMP) {
 			if (!fl4->saddr)
-				fl4->saddr = inet_select_addr(dev_out, 0,
+				fl4->saddr = inet_select_addr(net, dev_out, 0,
 							      RT_SCOPE_LINK);
 			goto make_route;
 		}
 		if (!fl4->saddr) {
 			if (ipv4_is_multicast(fl4->daddr))
-				fl4->saddr = inet_select_addr(dev_out, 0,
+				fl4->saddr = inet_select_addr(net, dev_out, 0,
 							      fl4->flowi4_scope);
 			else if (!fl4->daddr)
-				fl4->saddr = inet_select_addr(dev_out, 0,
+				fl4->saddr = inet_select_addr(net, dev_out, 0,
 							      RT_SCOPE_HOST);
 		}
 		if (netif_is_vrf(dev_out) &&
@@ -2167,7 +2167,7 @@ struct rtable *__ip_route_output_key(struct net *net, struct flowi4 *fl4)
 			 */
 
 			if (fl4->saddr == 0)
-				fl4->saddr = inet_select_addr(dev_out, 0,
+				fl4->saddr = inet_select_addr(net, dev_out, 0,
 							      RT_SCOPE_LINK);
 			res.type = RTN_UNICAST;
 			goto make_route;

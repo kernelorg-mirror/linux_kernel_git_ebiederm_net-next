@@ -400,7 +400,8 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge *br,
 	iph->ttl = 1;
 	iph->protocol = IPPROTO_IGMP;
 	iph->saddr = br->multicast_query_use_ifaddr ?
-		     inet_select_addr(br->dev, 0, RT_SCOPE_LINK) : 0;
+		inet_select_addr(dev_net(br->dev), br->dev, 0, RT_SCOPE_LINK) :
+		0;
 	iph->daddr = htonl(INADDR_ALLHOSTS_GROUP);
 	((u8 *)&iph[1])[0] = IPOPT_RA;
 	((u8 *)&iph[1])[1] = 4;
