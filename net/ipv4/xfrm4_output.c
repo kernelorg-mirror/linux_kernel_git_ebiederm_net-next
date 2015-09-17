@@ -69,7 +69,7 @@ int xfrm4_prepare_output(struct xfrm_state *x, struct sk_buff *skb)
 }
 EXPORT_SYMBOL(xfrm4_prepare_output);
 
-int xfrm4_output_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
+int xfrm4_output_finish(struct sk_buff *skb)
 {
 	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
 
@@ -91,7 +91,7 @@ static int __xfrm4_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 	}
 #endif
 
-	return x->outer_mode->afinfo->output_finish(net, sk, skb);
+	return x->outer_mode->afinfo->output_finish(skb);
 }
 
 int xfrm4_output(struct net *net, struct sock *sk, struct sk_buff *skb)
