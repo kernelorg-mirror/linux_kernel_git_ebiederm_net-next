@@ -1687,7 +1687,7 @@ static inline int ipmr_forward_finish(struct net *net, struct sock *sk,
 	IP_ADD_STATS_BH(net, IPSTATS_MIB_OUTOCTETS, skb->len);
 
 	if (unlikely(opt->optlen))
-		ip_forward_options(skb);
+		ip_forward_options(net, skb);
 
 	return dst_output(net, sk, skb);
 }

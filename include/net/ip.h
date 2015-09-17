@@ -520,8 +520,9 @@ int ip_forward(struct sk_buff *skb);
  *	Functions provided by ip_options.c
  */
  
-void ip_options_build(struct sk_buff *skb, struct ip_options *opt,
-		      __be32 daddr, struct rtable *rt, int is_frag);
+void ip_options_build(struct net *net, struct sk_buff *skb,
+		      struct ip_options *opt, __be32 daddr, struct rtable *rt,
+		      int is_frag);
 
 int __ip_options_echo(struct ip_options *dopt, struct sk_buff *skb,
 		      const struct ip_options *sopt);
@@ -538,7 +539,7 @@ int ip_options_get(struct net *net, struct ip_options_rcu **optp,
 int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
 			     unsigned char __user *data, int optlen);
 void ip_options_undo(struct ip_options *opt);
-void ip_forward_options(struct sk_buff *skb);
+void ip_forward_options(struct net *net, struct sk_buff *skb);
 int ip_options_rcv_srr(struct sk_buff *skb);
 
 /*

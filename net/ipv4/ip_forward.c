@@ -69,7 +69,7 @@ static int ip_forward_finish(struct net *net, struct sock *sk, struct sk_buff *s
 	IP_ADD_STATS_BH(net, IPSTATS_MIB_OUTOCTETS, skb->len);
 
 	if (unlikely(opt->optlen))
-		ip_forward_options(skb);
+		ip_forward_options(net, skb);
 
 	skb_sender_cpu_clear(skb);
 	return dst_output(net, sk, skb);

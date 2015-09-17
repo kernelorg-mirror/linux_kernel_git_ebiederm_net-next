@@ -40,8 +40,9 @@
  * saddr is address of outgoing interface.
  */
 
-void ip_options_build(struct sk_buff *skb, struct ip_options *opt,
-		      __be32 daddr, struct rtable *rt, int is_frag)
+void ip_options_build(struct net *net, struct sk_buff *skb,
+		      struct ip_options *opt, __be32 daddr, struct rtable *rt,
+		      int is_frag)
 {
 	unsigned char *iph = skb_network_header(skb);
 
@@ -557,7 +558,7 @@ int ip_options_get(struct net *net, struct ip_options_rcu **optp,
 	return ip_options_get_finish(net, optp, opt, optlen);
 }
 
-void ip_forward_options(struct sk_buff *skb)
+void ip_forward_options(struct net *net, struct sk_buff *skb)
 {
 	struct   ip_options *opt	= &(IPCB(skb)->opt);
 	unsigned char *optptr;
