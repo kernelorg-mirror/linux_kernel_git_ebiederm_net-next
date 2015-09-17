@@ -1171,7 +1171,7 @@ static int ip_rt_bug(struct net *net, struct sock *sk, struct sk_buff *skb)
    in IP options!
  */
 
-void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
+void ip_rt_get_source(u8 *addr, struct net *net, struct sk_buff *skb, struct rtable *rt)
 {
 	__be32 src;
 
@@ -1193,10 +1193,10 @@ void ip_rt_get_source(u8 *addr, struct sk_buff *skb, struct rtable *rt)
 		fl4.flowi4_mark = skb->mark;
 
 		rcu_read_lock();
-		if (fib_lookup(dev_net(rt->dst.dev), &fl4, &res, 0) == 0)
-			src = FIB_RES_PREFSRC(dev_net(rt->dst.dev), res);
+		if (fib_lookup(net, &fl4, &res, 0) == 0)
+			src = FIB_RES_PREFSRC(net, res);
 		else
-			src = inet_select_addr(dev_net(rt->dst.dev), rt->dst.dev,
+			src = inet_select_addr(net, rt->dst.dev,
 					       rt_nexthop(rt, iph->daddr),
 					       RT_SCOPE_UNIVERSE);
 		rcu_read_unlock();
