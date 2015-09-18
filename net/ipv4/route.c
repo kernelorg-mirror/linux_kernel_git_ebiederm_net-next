@@ -1437,7 +1437,7 @@ static void rt_set_nexthop(struct rtable *rt, __be32 daddr,
 #endif
 }
 
-static struct rtable *rt_dst_alloc(struct net_device *dev,
+static struct rtable *rt_dst_alloc(struct net *net, struct net_device *dev,
 				   unsigned int flags, u16 type,
 				   bool nopolicy, bool noxfrm, bool will_cache)
 {
@@ -1449,7 +1449,7 @@ static struct rtable *rt_dst_alloc(struct net_device *dev,
 		       (noxfrm ? DST_NOXFRM : 0));
 
 	if (rt) {
-		rt->rt_genid = rt_genid_ipv4(dev_net(dev));
+		rt->rt_genid = rt_genid_ipv4(net);
 		rt->rt_flags = flags;
 		rt->rt_type = type;
 		rt->rt_is_input = 0;
@@ -1474,6 +1474,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 {
 	struct rtable *rth;
 	struct in_device *in_dev = __in_dev_get_rcu(dev);
+	struct net *net = dev_net(dev);
 	unsigned int flags = RTCF_MULTICAST;
 	u32 itag = 0;
 	int err;
@@ -1503,7 +1504,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	if (our)
 		flags |= RTCF_LOCAL;
 
-	rth = rt_dst_alloc(dev_net(dev)->loopback_dev, flags, RTN_MULTICAST,
+	rth = rt_dst_alloc(net, net->loopback_dev, flags, RTN_MULTICAST,
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY), false, false);
 	if (!rth)
 		goto e_nobufs;
@@ -1621,7 +1622,7 @@ static int __mkroute_input(struct sk_buff *skb,
 		}
 	}
 
-	rth = rt_dst_alloc(out_dev->dev, 0, res->type,
+	rth = rt_dst_alloc(dev_net(in_dev->dev), out_dev->dev, 0, res->type,
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY),
 			   IN_DEV_CONF_GET(out_dev, NOXFRM), do_cache);
 	if (!rth) {
@@ -1802,7 +1803,7 @@ local_input:
 		}
 	}
 
-	rth = rt_dst_alloc(net->loopback_dev, flags | RTCF_LOCAL, res.type,
+	rth = rt_dst_alloc(net, net->loopback_dev, flags | RTCF_LOCAL, res.type,
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY), false, do_cache);
 	if (!rth)
 		goto e_nobufs;
@@ -1988,7 +1989,7 @@ static struct rtable *__mkroute_output(struct net *net,
 	}
 
 add:
-	rth = rt_dst_alloc(dev_out, flags, type,
+	rth = rt_dst_alloc(net, dev_out, flags, type,
 			   IN_DEV_CONF_GET(in_dev, NOPOLICY),
 			   IN_DEV_CONF_GET(in_dev, NOXFRM),
 			   do_cache);
