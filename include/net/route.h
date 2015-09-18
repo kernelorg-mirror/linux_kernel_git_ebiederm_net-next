@@ -50,6 +50,7 @@ struct uncached_list;
 struct rtable {
 	struct dst_entry	dst;
 
+	possible_net_t		rt_net;
 	int			rt_genid;
 	unsigned int		rt_flags;
 	__u16			rt_type;

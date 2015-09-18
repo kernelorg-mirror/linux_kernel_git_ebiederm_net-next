@@ -431,7 +431,7 @@ static inline int ip_rt_proc_init(void)
 
 static inline bool rt_is_expired(const struct rtable *rth)
 {
-	return rth->rt_genid != rt_genid_ipv4(dev_net(rth->dst.dev));
+	return rth->rt_genid != rt_genid_ipv4(read_pnet(&rth->rt_net));
 }
 
 void rt_cache_flush(struct net *net)
@@ -1449,6 +1449,7 @@ static struct rtable *rt_dst_alloc(struct net *net, struct net_device *dev,
 		       (noxfrm ? DST_NOXFRM : 0));
 
 	if (rt) {
+		write_pnet(&rt->rt_net, net);
 		rt->rt_genid = rt_genid_ipv4(net);
 		rt->rt_flags = flags;
 		rt->rt_type = type;
