@@ -1911,7 +1911,8 @@ int ip_route_input_noref(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 EXPORT_SYMBOL(ip_route_input_noref);
 
 /* called with rcu_read_lock() */
-static struct rtable *__mkroute_output(const struct fib_result *res,
+static struct rtable *__mkroute_output(struct net *net,
+				       const struct fib_result *res,
 				       const struct flowi4 *fl4, int orig_oif,
 				       struct net_device *dev_out,
 				       unsigned int flags)
@@ -2207,7 +2208,7 @@ struct rtable *__ip_route_output_key(struct net *net, struct flowi4 *fl4)
 
 
 make_route:
-	rth = __mkroute_output(&res, fl4, orig_oif, dev_out, flags);
+	rth = __mkroute_output(net, &res, fl4, orig_oif, dev_out, flags);
 
 out:
 	rcu_read_unlock();
